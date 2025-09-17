@@ -9,8 +9,10 @@ import '../controller/controller.dart';
 
 part 'default/loaded_builder.dart';
 part 'default/loading_builder.dart';
-part 'default/week_builder.dart';
 part 'default/error_builder.dart';
+
+part 'default/week_builder.dart';
+part 'default/week_page_builder.dart';
 
 typedef WeekBuilder =
     Widget Function(
@@ -19,6 +21,14 @@ typedef WeekBuilder =
       DateTime weekEnd,
       DateTime selectedData, {
       void Function(DateTime date)? onDateTap,
+    });
+
+typedef WeekPagesBuilder =
+    Widget Function(
+      BuildContext context,
+      Widget weekPageview, {
+      VoidCallback? onPreviousTap,
+      VoidCallback? onNextTap,
     });
 
 typedef LoadedBuilder<T> =
@@ -48,6 +58,7 @@ class ScheduleBuilder extends HookWidget {
 
   final double weekHeight;
   final WeekBuilder weekBuilder;
+  final WeekPagesBuilder weekPagesBuilder;
 
   final LoadedBuilder loadedBuilder;
   final LoadingBuilder loadingBuilder;
@@ -60,6 +71,7 @@ class ScheduleBuilder extends HookWidget {
     required this.controller,
     this.weekHeight = 64.0,
     this.weekBuilder = _defaultWeekBuilder,
+    this.weekPagesBuilder = _defaultWeekPageBuilder,
     this.loadedBuilder = _defaultLoadedBuilder,
     this.loadingBuilder = _defaultLoadingBuilder,
     this.errorBuilder = _defaultErrorBuilder,
@@ -101,61 +113,50 @@ class ScheduleBuilder extends HookWidget {
         children: [
           SizedBox(
             height: weekHeight,
-            child: Row(
-              children: [
-                CupertinoButton(
-                  onPressed: weekPage.value == 0
-                      ? null
-                      : () {
-                          weekController.previousPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.linear,
-                          );
-                        },
-                  padding: EdgeInsets.zero,
-                  child: Icon(Icons.arrow_back_ios_new),
-                ),
-                Expanded(
-                  child: PageView.builder(
-                    onPageChanged: (value) => weekPage.value = value,
-                    controller: weekController,
-                    itemCount: weeks.length,
-                    itemBuilder: (context, index) => weekBuilder(
-                      context,
-                      weeks[index].$1,
-                      weeks[index].$2,
-                      state.selectedDate,
-                      onDateTap: (value) {
-                        final newDayPage = value.difference(firstDay).inDays;
+            child: weekPagesBuilder(
+              context,
+              PageView.builder(
+                onPageChanged: (value) => weekPage.value = value,
+                controller: weekController,
+                itemCount: weeks.length,
+                itemBuilder: (context, index) => weekBuilder(
+                  context,
+                  weeks[index].$1,
+                  weeks[index].$2,
+                  state.selectedDate,
+                  onDateTap: (value) {
+                    final newDayPage = value.difference(firstDay).inDays;
 
-                        final daysDiff = (newDayPage - dayPage.value).abs();
+                    final daysDiff = (newDayPage - dayPage.value).abs();
 
-                        dayPage.value = newDayPage;
-                        // TODO: fix controller.selectDate toogle onPageChanged
-                        dayController.animateToPage(
-                          newDayPage,
-                          duration: Duration(milliseconds: 100 * daysDiff),
-                          curve: Curves.bounceInOut,
-                        );
+                    dayPage.value = newDayPage;
+                    // TODO: fix controller.selectDate toogle onPageChanged
+                    dayController.animateToPage(
+                      newDayPage,
+                      duration: Duration(milliseconds: 100 * daysDiff),
+                      curve: Curves.bounceInOut,
+                    );
 
-                        controller.selectDate(value);
-                      },
-                    ),
-                  ),
+                    controller.selectDate(value);
+                  },
                 ),
-                CupertinoButton(
-                  onPressed: weekPage.value == weeks.length - 1
-                      ? null
-                      : () {
-                          weekController.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.linear,
-                          );
-                        },
-                  padding: EdgeInsets.zero,
-                  child: Icon(Icons.arrow_forward_ios),
-                ),
-              ],
+              ),
+              onPreviousTap: weekPage.value == 0
+                  ? null
+                  : () {
+                      weekController.previousPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.linear,
+                      );
+                    },
+              onNextTap: weekPage.value == weeks.length - 1
+                  ? null
+                  : () {
+                      weekController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.linear,
+                      );
+                    },
             ),
           ),
           Expanded(
