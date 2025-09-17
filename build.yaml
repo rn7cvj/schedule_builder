@@ -1,0 +1,17 @@
+targets:
+  $default:
+    builders:
+      # slang_build_runner:
+      #   options:
+      #     namespaces: true
+      #     input_directory: i18n
+      #     input_file_pattern: .i18n.yaml
+      #     output_directory: lib/.gen/i18n
+      source_gen|combining_builder:
+        options:
+          build_extensions:
+            "^lib/{{}}.dart": "lib/.gen/{{}}.g.dart"
+      freezed|freezed:
+        options:
+          build_extensions:
+            "^lib/{{}}.dart": "lib/.gen/{{}}.freezed.dart"

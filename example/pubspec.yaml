@@ -1,0 +1,28 @@
+name: schedule_builder_example
+description: "schedule_builder_example"
+publish_to: 'none'
+
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+
+  schedule_builder:
+    path: ../
+
+
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+
+  uses-material-design: true
+
