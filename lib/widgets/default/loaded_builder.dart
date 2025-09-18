@@ -1,8 +1,8 @@
 part of '../builder.dart';
 
-Widget _defaultLoadedBuilder<T>(
+Widget _defaultLoadedBuilder(
   BuildContext context,
-  List<T> data,
+  List<dynamic> data,
   DateTime date,
   DateTime selectedDate,
 ) {

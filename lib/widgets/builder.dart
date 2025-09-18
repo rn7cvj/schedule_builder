@@ -19,7 +19,7 @@ typedef WeekBuilder =
       BuildContext context,
       DateTime weekBegin,
       DateTime weekEnd,
-      DateTime selectedData, {
+      DateTime selectedDate, {
       void Function(DateTime date)? onDateTap,
     });
 
@@ -50,17 +50,17 @@ typedef ErrorBuilder =
       DateTime selectedDate,
     );
 
-class ScheduleBuilder extends HookWidget {
+class ScheduleBuilder<T> extends HookWidget {
   final int pastWeeksView;
   final int futureWeeksView;
 
-  final ScheduleController controller;
+  final ScheduleController<T> controller;
 
   final double weekHeight;
   final WeekBuilder weekBuilder;
   final WeekPagesBuilder weekPagesBuilder;
 
-  final LoadedBuilder loadedBuilder;
+  final LoadedBuilder<T> loadedBuilder;
   final LoadingBuilder loadingBuilder;
   final ErrorBuilder errorBuilder;
 
@@ -107,7 +107,7 @@ class ScheduleBuilder extends HookWidget {
       initialPage: pastWeeksView * 7 + DateTime.now().weekday - 1,
     );
 
-    return BlocBuilder<ScheduleController, ScheduleControllerState>(
+    return BlocBuilder<ScheduleController<T>, ScheduleControllerState<T>>(
       bloc: controller,
       builder: (context, state) => Column(
         children: [
@@ -131,11 +131,15 @@ class ScheduleBuilder extends HookWidget {
 
                     dayPage.value = newDayPage;
                     // TODO: fix controller.selectDate toogle onPageChanged
-                    dayController.animateToPage(
-                      newDayPage,
-                      duration: Duration(milliseconds: 100 * daysDiff),
-                      curve: Curves.bounceInOut,
-                    );
+                    // dayController.animateToPage(
+                    //   newDayPage,
+                    //   duration: Duration(
+                    //     milliseconds: (100 * daysDiff).clamp(300, 600),
+                    //   ),
+                    //   curve: Curves.linear,
+                    // );
+
+                    dayController.jumpToPage(newDayPage);
 
                     controller.selectDate(value);
                   },
