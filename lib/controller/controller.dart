@@ -26,16 +26,14 @@ class ScheduleController<T> extends Cubit<ScheduleControllerState<T>> {
     selectDate(initialSelectedDate);
   }
 
-  Future<void> loadData(DateTime date) async {}
-
-  Future<void> selectDate(DateTime date) async {
+  Future<void> selectDate(DateTime date, {bool ignoreCache = false}) async {
     emit(state.copyWith(selectedDate: date.today()));
 
-    if (state.data[date]?.isLoading == true) {
+    if (state.data[date]?.isLoading == true || !ignoreCache) {
       return;
     }
 
-    if (state.data[date]?.isLoaded == true) {
+    if (state.data[date]?.isLoaded == true || !ignoreCache) {
       return;
     }
 
@@ -92,5 +90,10 @@ class ScheduleController<T> extends Cubit<ScheduleControllerState<T>> {
         ),
       );
     }
+  }
+
+  Future<void> resetCache({bool rerequset = true}) async {
+    emit(ScheduleControllerState<T>(selectedDate: state.selectedDate));
+    if (rerequset) selectDate(state.selectedDate);
   }
 }
