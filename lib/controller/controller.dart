@@ -27,7 +27,9 @@ class ScheduleController<T> extends Cubit<ScheduleControllerState<T>> {
   }
 
   Future<void> selectDate(DateTime date, {bool ignoreCache = false}) async {
-    emit(state.copyWith(selectedDate: date.today()));
+    date = date.today();
+
+    emit(state.copyWith(selectedDate: date));
 
     if (state.data[date]?.isLoading == true && !ignoreCache) {
       return;
@@ -39,8 +41,8 @@ class ScheduleController<T> extends Cubit<ScheduleControllerState<T>> {
 
     final previousData = Map<DateTime, DateState<T>>.from(state.data);
 
-    final begin = date.today().subtract(Duration(days: pastDaysForCache));
-    final end = date.today().add(Duration(days: futureDaysForCache));
+    final begin = date.subtract(Duration(days: pastDaysForCache));
+    final end = date.add(Duration(days: futureDaysForCache));
 
     final loadingDays = List<DateTime>.generate(
       end.difference(begin).inDays,
