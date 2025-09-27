@@ -14,6 +14,8 @@ part 'default/error_builder.dart';
 part 'default/week_builder.dart';
 part 'default/week_page_builder.dart';
 
+part 'default/filter.dart';
+
 typedef WeekBuilder =
     Widget Function(
       BuildContext context,
@@ -50,6 +52,9 @@ typedef ErrorBuilder =
       DateTime selectedDate,
     );
 
+typedef DataFilter<T> =
+    bool Function(DateTime date, DateTime selectedData, T data);
+
 class ScheduleBuilder<T> extends HookWidget {
   final int pastWeeksView;
   final int futureWeeksView;
@@ -64,6 +69,8 @@ class ScheduleBuilder<T> extends HookWidget {
   final LoadingBuilder loadingBuilder;
   final ErrorBuilder errorBuilder;
 
+  final DataFilter<T> dataFilter;
+
   const ScheduleBuilder({
     super.key,
     this.pastWeeksView = 1,
@@ -75,6 +82,7 @@ class ScheduleBuilder<T> extends HookWidget {
     this.loadedBuilder = _defaultLoadedBuilder,
     this.loadingBuilder = _defaultLoadingBuilder,
     this.errorBuilder = _defaultErrorBuilder,
+    this.dataFilter = _defaultFilter,
   });
 
   @override
@@ -185,7 +193,9 @@ class ScheduleBuilder<T> extends HookWidget {
                         loadingBuilder(context, date, state.selectedDate),
                     loaded: (data) => loadedBuilder(
                       context,
-                      data.data,
+                      data.data
+                          .where((e) => dataFilter(date, state.selectedDate, e))
+                          .toList(),
                       date,
                       state.selectedDate,
                     ),
