@@ -6,7 +6,7 @@ part '../.gen/controller/controller.freezed.dart';
 part 'state.dart';
 
 /// Interface that requires any type T to have an id property
-abstract class Identifiable {
+abstract interface class Identifiable {
   int get scheduleId;
 }
 

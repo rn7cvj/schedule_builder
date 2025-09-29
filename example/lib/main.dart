@@ -13,7 +13,7 @@ class ExampleEvent implements Identifiable {
   final String title;
   final int value;
 
-  ExampleEvent({
+  const ExampleEvent({
     required this.scheduleId,
     required this.title,
     required this.value,
