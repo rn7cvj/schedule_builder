@@ -1,7 +1,8 @@
 part of "controller.dart";
 
 @freezed
-abstract class ScheduleControllerState<T> with _$ScheduleControllerState<T> {
+abstract class ScheduleControllerState<T extends Identifiable>
+    with _$ScheduleControllerState<T> {
   factory ScheduleControllerState({
     @Default({}) Map<DateTime, DateState<T>> data,
     required DateTime selectedDate,
@@ -9,7 +10,7 @@ abstract class ScheduleControllerState<T> with _$ScheduleControllerState<T> {
 }
 
 @freezed
-abstract class DateState<T> with _$DateState<T> {
+abstract class DateState<T extends Identifiable> with _$DateState<T> {
   DateState._();
 
   bool get isLoading => this is _Loading;

@@ -6,6 +6,20 @@ void main() {
   runApp(MaterialApp(debugShowCheckedModeBanner: false, home: HomePage()));
 }
 
+// Example data class that implements Identifiable
+class ExampleEvent implements Identifiable {
+  @override
+  final int scheduleId;
+  final String title;
+  final int value;
+
+  ExampleEvent({
+    required this.scheduleId,
+    required this.title,
+    required this.value,
+  });
+}
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -13,11 +27,11 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("schedule_builder_example")),
-      body: ScheduleBuilder(
-        controller: ScheduleController<int>(
+      body: ScheduleBuilder<ExampleEvent>(
+        controller: ScheduleController<ExampleEvent>(
           dataLoader: (begin, end) async {
-            print(
-              "request ${begin.toIso8601String()} - ${end.toIso8601String()}",
+            debugPrint(
+              "Request ${begin.toIso8601String()} - ${end.toIso8601String()}",
             );
             await Future.delayed(Duration(milliseconds: 6000));
 
@@ -26,9 +40,16 @@ class HomePage extends StatelessWidget {
               (index) => begin.add(Duration(days: index)),
             );
 
-            final result = Map<DateTime, List<int>>.fromIterable(
+            final result = Map<DateTime, List<ExampleEvent>>.fromIterable(
               loadingDays,
-              value: (element) => List.generate(16, (index) => index * index),
+              value: (element) => List.generate(
+                16,
+                (index) => ExampleEvent(
+                  scheduleId: index,
+                  title: 'Event $index',
+                  value: index * index,
+                ),
+              ),
             );
 
             return result;

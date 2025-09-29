@@ -5,10 +5,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part '../.gen/controller/controller.freezed.dart';
 part 'state.dart';
 
-typedef DataLoader<T> =
+/// Interface that requires any type T to have an id property
+abstract class Identifiable {
+  int get scheduleId;
+}
+
+typedef DataLoader<T extends Identifiable> =
     Future<Map<DateTime, List<T>>> Function(DateTime begin, DateTime end);
 
-class ScheduleController<T> extends Cubit<ScheduleControllerState<T>> {
+class ScheduleController<T extends Identifiable>
+    extends Cubit<ScheduleControllerState<T>> {
   final DataLoader<T> dataLoader;
 
   final int pastDaysForCache;
@@ -92,6 +98,43 @@ class ScheduleController<T> extends Cubit<ScheduleControllerState<T>> {
         ),
       );
     }
+  }
+
+  Future<bool> updateValue(int id, T newValue) async {
+    final updatedData = Map<DateTime, DateState<T>>.from(state.data);
+
+    bool itemFound = false;
+    for (final entry in updatedData.entries) {
+      final dateState = entry.value;
+
+      if (!dateState.isLoaded) {
+        continue;
+      }
+
+      final loadedState = dateState as _Loaded<T>;
+      final itemIndex = loadedState.data.indexWhere(
+        (item) => item.scheduleId == id,
+      );
+
+      if (itemIndex == -1) {
+        continue;
+      }
+
+      final updatedItems = List<T>.from(loadedState.data);
+      updatedItems[itemIndex] = newValue;
+
+      updatedData[entry.key] = DateState<T>.loaded(data: updatedItems);
+      itemFound = true;
+      break;
+    }
+
+    if (!itemFound) {
+      return false;
+    }
+
+    emit(state.copyWith(data: updatedData));
+
+    return true;
   }
 
   Future<void> resetCache({bool rerequset = true}) async {

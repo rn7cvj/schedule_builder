@@ -33,7 +33,7 @@ typedef WeekPagesBuilder =
       VoidCallback? onNextTap,
     });
 
-typedef LoadedBuilder<T> =
+typedef LoadedBuilder<T extends Identifiable> =
     Widget Function(
       BuildContext context,
       List<T> data,
@@ -52,10 +52,10 @@ typedef ErrorBuilder =
       DateTime selectedDate,
     );
 
-typedef DataFilter<T> =
+typedef DataFilter<T extends Identifiable> =
     bool Function(DateTime date, DateTime selectedData, T data);
 
-class ScheduleBuilder<T> extends HookWidget {
+class ScheduleBuilder<T extends Identifiable> extends HookWidget {
   final int pastWeeksView;
   final int futureWeeksView;
 
@@ -135,10 +135,10 @@ class ScheduleBuilder<T> extends HookWidget {
                   onDateTap: (value) {
                     final newDayPage = value.difference(firstDay).inDays;
 
-                    final daysDiff = (newDayPage - dayPage.value).abs();
+                    final _ = (newDayPage - dayPage.value).abs();
 
                     dayPage.value = newDayPage;
-                    // TODO: fix controller.selectDate toogle onPageChanged
+                    // TODO: fix controller.selectDate toggle onPageChanged
                     // dayController.animateToPage(
                     //   newDayPage,
                     //   duration: Duration(

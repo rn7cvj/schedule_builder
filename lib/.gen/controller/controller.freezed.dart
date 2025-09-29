@@ -12,7 +12,7 @@ part of '../../controller/controller.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$ScheduleControllerState<T> {
+mixin _$ScheduleControllerState<T extends Identifiable> {
 
  Map<DateTime, DateState<T>> get data; DateTime get selectedDate;
 /// Create a copy of ScheduleControllerState
@@ -41,7 +41,7 @@ String toString() {
 }
 
 /// @nodoc
-abstract mixin class $ScheduleControllerStateCopyWith<T,$Res>  {
+abstract mixin class $ScheduleControllerStateCopyWith<T extends Identifiable,$Res>  {
   factory $ScheduleControllerStateCopyWith(ScheduleControllerState<T> value, $Res Function(ScheduleControllerState<T>) _then) = _$ScheduleControllerStateCopyWithImpl;
 @useResult
 $Res call({
@@ -53,7 +53,7 @@ $Res call({
 
 }
 /// @nodoc
-class _$ScheduleControllerStateCopyWithImpl<T,$Res>
+class _$ScheduleControllerStateCopyWithImpl<T extends Identifiable,$Res>
     implements $ScheduleControllerStateCopyWith<T, $Res> {
   _$ScheduleControllerStateCopyWithImpl(this._self, this._then);
 
@@ -74,7 +74,7 @@ as DateTime,
 
 
 /// Adds pattern-matching-related methods to [ScheduleControllerState].
-extension ScheduleControllerStatePatterns<T> on ScheduleControllerState<T> {
+extension ScheduleControllerStatePatterns<T extends Identifiable> on ScheduleControllerState<T> {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -206,7 +206,7 @@ return $default(_that.data,_that.selectedDate);case _:
 /// @nodoc
 
 
-class _ScheduleControllerState<T> implements ScheduleControllerState<T> {
+class _ScheduleControllerState<T extends Identifiable> implements ScheduleControllerState<T> {
    _ScheduleControllerState({final  Map<DateTime, DateState<T>> data = const {}, required this.selectedDate}): _data = data;
   
 
@@ -245,7 +245,7 @@ String toString() {
 }
 
 /// @nodoc
-abstract mixin class _$ScheduleControllerStateCopyWith<T,$Res> implements $ScheduleControllerStateCopyWith<T, $Res> {
+abstract mixin class _$ScheduleControllerStateCopyWith<T extends Identifiable,$Res> implements $ScheduleControllerStateCopyWith<T, $Res> {
   factory _$ScheduleControllerStateCopyWith(_ScheduleControllerState<T> value, $Res Function(_ScheduleControllerState<T>) _then) = __$ScheduleControllerStateCopyWithImpl;
 @override @useResult
 $Res call({
@@ -257,7 +257,7 @@ $Res call({
 
 }
 /// @nodoc
-class __$ScheduleControllerStateCopyWithImpl<T,$Res>
+class __$ScheduleControllerStateCopyWithImpl<T extends Identifiable,$Res>
     implements _$ScheduleControllerStateCopyWith<T, $Res> {
   __$ScheduleControllerStateCopyWithImpl(this._self, this._then);
 
@@ -278,7 +278,7 @@ as DateTime,
 }
 
 /// @nodoc
-mixin _$DateState<T> {
+mixin _$DateState<T extends Identifiable> {
 
 
 
@@ -302,13 +302,13 @@ String toString() {
 }
 
 /// @nodoc
-class $DateStateCopyWith<T,$Res>  {
+class $DateStateCopyWith<T extends Identifiable,$Res>  {
 $DateStateCopyWith(DateState<T> _, $Res Function(DateState<T>) __);
 }
 
 
 /// Adds pattern-matching-related methods to [DateState].
-extension DateStatePatterns<T> on DateState<T> {
+extension DateStatePatterns<T extends Identifiable> on DateState<T> {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -452,7 +452,7 @@ return error(_that.e);case _:
 /// @nodoc
 
 
-class _Loading<T> extends DateState<T> {
+class _Loading<T extends Identifiable> extends DateState<T> {
    _Loading(): super._();
   
 
@@ -484,7 +484,7 @@ String toString() {
 /// @nodoc
 
 
-class _Loaded<T> extends DateState<T> {
+class _Loaded<T extends Identifiable> extends DateState<T> {
    _Loaded({required final  List<T> data}): _data = data,super._();
   
 
@@ -522,7 +522,7 @@ String toString() {
 }
 
 /// @nodoc
-abstract mixin class _$LoadedCopyWith<T,$Res> implements $DateStateCopyWith<T, $Res> {
+abstract mixin class _$LoadedCopyWith<T extends Identifiable,$Res> implements $DateStateCopyWith<T, $Res> {
   factory _$LoadedCopyWith(_Loaded<T> value, $Res Function(_Loaded<T>) _then) = __$LoadedCopyWithImpl;
 @useResult
 $Res call({
@@ -534,7 +534,7 @@ $Res call({
 
 }
 /// @nodoc
-class __$LoadedCopyWithImpl<T,$Res>
+class __$LoadedCopyWithImpl<T extends Identifiable,$Res>
     implements _$LoadedCopyWith<T, $Res> {
   __$LoadedCopyWithImpl(this._self, this._then);
 
@@ -556,7 +556,7 @@ as List<T>,
 /// @nodoc
 
 
-class _Error<T> extends DateState<T> {
+class _Error<T extends Identifiable> extends DateState<T> {
    _Error({required this.e}): super._();
   
 
@@ -588,7 +588,7 @@ String toString() {
 }
 
 /// @nodoc
-abstract mixin class _$ErrorCopyWith<T,$Res> implements $DateStateCopyWith<T, $Res> {
+abstract mixin class _$ErrorCopyWith<T extends Identifiable,$Res> implements $DateStateCopyWith<T, $Res> {
   factory _$ErrorCopyWith(_Error<T> value, $Res Function(_Error<T>) _then) = __$ErrorCopyWithImpl;
 @useResult
 $Res call({
@@ -600,7 +600,7 @@ $Res call({
 
 }
 /// @nodoc
-class __$ErrorCopyWithImpl<T,$Res>
+class __$ErrorCopyWithImpl<T extends Identifiable,$Res>
     implements _$ErrorCopyWith<T, $Res> {
   __$ErrorCopyWithImpl(this._self, this._then);
 
