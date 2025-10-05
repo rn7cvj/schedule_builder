@@ -1,3 +1,5 @@
+import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
+
 import 'package:datetime_utils/extensions/date_time.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,8 +15,8 @@ abstract interface class Identifiable {
 typedef DataLoader<T extends Identifiable> =
     Future<Map<DateTime, List<T>>> Function(DateTime begin, DateTime end);
 
-class ScheduleController<T extends Identifiable>
-    extends Cubit<ScheduleControllerState<T>> {
+class ScheduleController<T extends Identifiable, E>
+    extends Cubit<ScheduleControllerState<T, E>> {
   final DataLoader<T> dataLoader;
 
   final int pastDaysForCache;
@@ -25,14 +27,18 @@ class ScheduleController<T extends Identifiable>
     required DateTime initialSelectedDate,
     this.pastDaysForCache = 7,
     this.futureDaysForCache = 7,
-  }) : super(ScheduleControllerState<T>(selectedDate: initialSelectedDate)) {
+  }) : super(ScheduleControllerState<T, E>(selectedDate: initialSelectedDate)) {
     assert(pastDaysForCache >= 0);
     assert(futureDaysForCache >= 0);
 
     selectDate(initialSelectedDate);
   }
 
-  Future<void> selectDate(DateTime date, {bool ignoreCache = false}) async {
+  Future<void> selectDate(
+    DateTime date, {
+    bool ignoreCache = false,
+    Future<E?> Function(DateTime date, List<T> data)? extraBuilder,
+  }) async {
     date = date.today();
 
     emit(state.copyWith(selectedDate: date));
@@ -45,7 +51,7 @@ class ScheduleController<T extends Identifiable>
       return;
     }
 
-    final previousData = Map<DateTime, DateState<T>>.from(state.data);
+    final previousData = Map<DateTime, DateState<T, E>>.from(state.data);
 
     final begin = date.subtract(Duration(days: pastDaysForCache));
     final end = date.add(Duration(days: futureDaysForCache));
@@ -59,9 +65,9 @@ class ScheduleController<T extends Identifiable>
       ScheduleControllerState(
         data: {
           ...previousData,
-          ...Map<DateTime, DateState<T>>.fromIterable(
+          ...Map<DateTime, DateState<T, E>>.fromIterable(
             loadingDays,
-            value: (element) => DateState<T>.loading(),
+            value: (element) => DateState<T, E>.loading(),
           ),
         },
         selectedDate: state.selectedDate,
@@ -71,16 +77,20 @@ class ScheduleController<T extends Identifiable>
     try {
       final response = await dataLoader(begin, end);
 
+      Map<DateTime, DateState<T, E>> loadedStates = {};
+      for (final element in loadingDays) {
+        final data = response[element] ?? [];
+        final extra = await extraBuilder?.call(date, data);
+
+        loadedStates[element] = DateState<T, E>.loaded(
+          data: data,
+          extra: extra,
+        );
+      }
+
       emit(
         ScheduleControllerState(
-          data: {
-            ...previousData,
-            ...Map<DateTime, DateState<T>>.fromIterable(
-              loadingDays,
-              value: (element) =>
-                  DateState<T>.loaded(data: response[element] ?? []),
-            ),
-          },
+          data: {...previousData, ...loadedStates},
           selectedDate: state.selectedDate,
         ),
       );
@@ -89,9 +99,9 @@ class ScheduleController<T extends Identifiable>
         ScheduleControllerState(
           data: {
             ...previousData,
-            ...Map<DateTime, DateState<T>>.fromIterable(
+            ...Map<DateTime, DateState<T, E>>.fromIterable(
               loadingDays,
-              value: (element) => DateState<T>.error(e: e),
+              value: (element) => DateState<T, E>.error(e: e),
             ),
           },
           selectedDate: state.selectedDate,
@@ -101,7 +111,7 @@ class ScheduleController<T extends Identifiable>
   }
 
   Future<bool> updateValue(int id, T newValue) async {
-    final updatedData = Map<DateTime, DateState<T>>.from(state.data);
+    final updatedData = Map<DateTime, DateState<T, E>>.from(state.data);
 
     bool itemFound = false;
     for (final entry in updatedData.entries) {
@@ -111,7 +121,7 @@ class ScheduleController<T extends Identifiable>
         continue;
       }
 
-      final loadedState = dateState as _Loaded<T>;
+      final loadedState = dateState as _Loaded<T, E>;
       final itemIndex = loadedState.data.indexWhere(
         (item) => item.scheduleId == id,
       );
@@ -123,7 +133,10 @@ class ScheduleController<T extends Identifiable>
       final updatedItems = List<T>.from(loadedState.data);
       updatedItems[itemIndex] = newValue;
 
-      updatedData[entry.key] = DateState<T>.loaded(data: updatedItems);
+      updatedData[entry.key] = DateState<T, E>.loaded(
+        data: updatedItems,
+        extra: loadedState.extra,
+      );
       itemFound = true;
       break;
     }
@@ -138,7 +151,7 @@ class ScheduleController<T extends Identifiable>
   }
 
   Future<void> resetCache({bool rerequset = true}) async {
-    emit(ScheduleControllerState<T>(selectedDate: state.selectedDate));
+    emit(ScheduleControllerState<T, E>(selectedDate: state.selectedDate));
     if (rerequset) selectDate(state.selectedDate);
   }
 }

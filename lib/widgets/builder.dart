@@ -33,12 +33,13 @@ typedef WeekPagesBuilder =
       VoidCallback? onNextTap,
     });
 
-typedef LoadedBuilder<T extends Identifiable> =
+typedef LoadedBuilder<T extends Identifiable, E> =
     Widget Function(
       BuildContext context,
       List<T> data,
       DateTime date,
       DateTime selectedDate,
+      E? extra,
     );
 
 typedef LoadingBuilder =
@@ -55,17 +56,27 @@ typedef ErrorBuilder =
 typedef DataFilter<T extends Identifiable> =
     bool Function(DateTime date, DateTime selectedData, T data);
 
-class ScheduleBuilder<T extends Identifiable> extends HookWidget {
+typedef ExtraLoader<T extends Identifiable, E> =
+    Future<E> Function(
+      BuildContext context,
+      DateTime date,
+      DateTime selectedData,
+      List<T> data,
+    );
+
+class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
   final int pastWeeksView;
   final int futureWeeksView;
 
-  final ScheduleController<T> controller;
+  final ScheduleController<T, E> controller;
 
   final double weekHeight;
   final WeekBuilder weekBuilder;
   final WeekPagesBuilder weekPagesBuilder;
 
-  final LoadedBuilder<T> loadedBuilder;
+  final LoadedBuilder<T, E> loadedBuilder;
+
+  final ExtraLoader<T, E>? extraLoader;
   final LoadingBuilder loadingBuilder;
   final ErrorBuilder errorBuilder;
 
@@ -83,6 +94,7 @@ class ScheduleBuilder<T extends Identifiable> extends HookWidget {
     this.loadingBuilder = _defaultLoadingBuilder,
     this.errorBuilder = _defaultErrorBuilder,
     this.dataFilter = _defaultFilter,
+    this.extraLoader,
   });
 
   @override
@@ -115,7 +127,7 @@ class ScheduleBuilder<T extends Identifiable> extends HookWidget {
       initialPage: pastWeeksView * 7 + DateTime.now().weekday - 1,
     );
 
-    return BlocBuilder<ScheduleController<T>, ScheduleControllerState<T>>(
+    return BlocBuilder<ScheduleController<T, E>, ScheduleControllerState<T, E>>(
       bloc: controller,
       builder: (context, state) => Column(
         children: [
@@ -149,7 +161,11 @@ class ScheduleBuilder<T extends Identifiable> extends HookWidget {
 
                     dayController.jumpToPage(newDayPage);
 
-                    controller.selectDate(value);
+                    controller.selectDate(
+                      value,
+                      extraBuilder: (date, data) async =>
+                          extraLoader?.call(context, date, value, data),
+                    );
                   },
                 ),
               ),
@@ -175,7 +191,15 @@ class ScheduleBuilder<T extends Identifiable> extends HookWidget {
             child: PageView.builder(
               onPageChanged: (value) {
                 dayPage.value = value;
-                controller.selectDate(firstDay.add(Duration(days: value)));
+                controller.selectDate(
+                  firstDay.add(Duration(days: value)),
+                  extraBuilder: (date, data) async => extraLoader?.call(
+                    context,
+                    date,
+                    state.selectedDate,
+                    data,
+                  ),
+                );
               },
               controller: dayController,
               itemCount: totalDays,
@@ -191,14 +215,20 @@ class ScheduleBuilder<T extends Identifiable> extends HookWidget {
                   child: state.data[date]!.map(
                     loading: (data) =>
                         loadingBuilder(context, date, state.selectedDate),
-                    loaded: (data) => loadedBuilder(
-                      context,
-                      data.data
+                    loaded: (data) {
+                      final filtered = data.data
                           .where((e) => dataFilter(date, state.selectedDate, e))
-                          .toList(),
-                      date,
-                      state.selectedDate,
-                    ),
+                          .toList();
+
+                      return loadedBuilder(
+                        context,
+                        filtered,
+                        date,
+                        state.selectedDate,
+                        data.extra,
+                      );
+                    },
+
                     error: (data) =>
                         errorBuilder(context, data.e, date, state.selectedDate),
                   ),

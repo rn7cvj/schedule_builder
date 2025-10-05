@@ -5,6 +5,7 @@ Widget _defaultLoadedBuilder(
   List<dynamic> data,
   DateTime date,
   DateTime selectedDate,
+  dynamic? extra,
 ) {
   return ListView.builder(
     itemCount: data.length,

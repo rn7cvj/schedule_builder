@@ -6,7 +6,6 @@ void main() {
   runApp(MaterialApp(debugShowCheckedModeBanner: false, home: HomePage()));
 }
 
-// Example data class that implements Identifiable
 class ExampleEvent implements Identifiable {
   @override
   final int scheduleId;
@@ -27,8 +26,8 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("schedule_builder_example")),
-      body: ScheduleBuilder<ExampleEvent>(
-        controller: ScheduleController<ExampleEvent>(
+      body: ScheduleBuilder<ExampleEvent, dynamic>(
+        controller: ScheduleController<ExampleEvent, dynamic>(
           dataLoader: (begin, end) async {
             debugPrint(
               "Request ${begin.toIso8601String()} - ${end.toIso8601String()}",
