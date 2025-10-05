@@ -1,6 +1,5 @@
-import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
-
 import 'package:datetime_utils/extensions/date_time.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -15,15 +14,20 @@ abstract interface class Identifiable {
 typedef DataLoader<T extends Identifiable> =
     Future<Map<DateTime, List<T>>> Function(DateTime begin, DateTime end);
 
+typedef ExtraLoader<T extends Identifiable, E> =
+    Future<E> Function(DateTime date, List<T> data);
+
 class ScheduleController<T extends Identifiable, E>
     extends Cubit<ScheduleControllerState<T, E>> {
   final DataLoader<T> dataLoader;
+  final ExtraLoader<T, E>? extraLoader;
 
   final int pastDaysForCache;
   final int futureDaysForCache;
 
   ScheduleController({
     required this.dataLoader,
+    this.extraLoader,
     required DateTime initialSelectedDate,
     this.pastDaysForCache = 7,
     this.futureDaysForCache = 7,
@@ -34,11 +38,7 @@ class ScheduleController<T extends Identifiable, E>
     selectDate(initialSelectedDate);
   }
 
-  Future<void> selectDate(
-    DateTime date, {
-    bool ignoreCache = false,
-    Future<E?> Function(DateTime date, List<T> data)? extraBuilder,
-  }) async {
+  Future<void> selectDate(DateTime date, {bool ignoreCache = false}) async {
     date = date.today();
 
     emit(state.copyWith(selectedDate: date));
@@ -80,7 +80,7 @@ class ScheduleController<T extends Identifiable, E>
       Map<DateTime, DateState<T, E>> loadedStates = {};
       for (final element in loadingDays) {
         final data = response[element] ?? [];
-        final extra = await extraBuilder?.call(date, data);
+        final extra = await extraLoader?.call(date, data);
 
         loadedStates[element] = DateState<T, E>.loaded(
           data: data,

@@ -56,14 +56,6 @@ typedef ErrorBuilder =
 typedef DataFilter<T extends Identifiable> =
     bool Function(DateTime date, DateTime selectedData, T data);
 
-typedef ExtraLoader<T extends Identifiable, E> =
-    Future<E> Function(
-      BuildContext context,
-      DateTime date,
-      DateTime selectedData,
-      List<T> data,
-    );
-
 class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
   final int pastWeeksView;
   final int futureWeeksView;
@@ -76,7 +68,6 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
 
   final LoadedBuilder<T, E> loadedBuilder;
 
-  final ExtraLoader<T, E>? extraLoader;
   final LoadingBuilder loadingBuilder;
   final ErrorBuilder errorBuilder;
 
@@ -94,7 +85,6 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
     this.loadingBuilder = _defaultLoadingBuilder,
     this.errorBuilder = _defaultErrorBuilder,
     this.dataFilter = _defaultFilter,
-    this.extraLoader,
   });
 
   @override
@@ -161,11 +151,7 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
 
                     dayController.jumpToPage(newDayPage);
 
-                    controller.selectDate(
-                      value,
-                      extraBuilder: (date, data) async =>
-                          extraLoader?.call(context, date, value, data),
-                    );
+                    controller.selectDate(value);
                   },
                 ),
               ),
@@ -191,15 +177,7 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
             child: PageView.builder(
               onPageChanged: (value) {
                 dayPage.value = value;
-                controller.selectDate(
-                  firstDay.add(Duration(days: value)),
-                  extraBuilder: (date, data) async => extraLoader?.call(
-                    context,
-                    date,
-                    state.selectedDate,
-                    data,
-                  ),
-                );
+                controller.selectDate(firstDay.add(Duration(days: value)));
               },
               controller: dayController,
               itemCount: totalDays,
