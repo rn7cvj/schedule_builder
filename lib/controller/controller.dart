@@ -23,7 +23,7 @@ class ScheduleController<T extends Identifiable, E>
 
   final int pastDaysForCache;
   final int futureDaysForCache;
-k
+
   ScheduleController({
     required this.dataLoader,
     this.extraLoader,
