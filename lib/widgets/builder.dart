@@ -73,6 +73,8 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
 
   final DataFilter<T> dataFilter;
 
+  final ValueChanged<DateTime>? onDateChanged;
+
   const ScheduleBuilder({
     super.key,
     this.pastWeeksView = 1,
@@ -85,6 +87,7 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
     this.loadingBuilder = _defaultLoadingBuilder,
     this.errorBuilder = _defaultErrorBuilder,
     this.dataFilter = _defaultFilter,
+    this.onDateChanged,
   });
 
   @override
@@ -140,18 +143,11 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
                     final _ = (newDayPage - dayPage.value).abs();
 
                     dayPage.value = newDayPage;
-                    // TODO: fix controller.selectDate toggle onPageChanged
-                    // dayController.animateToPage(
-                    //   newDayPage,
-                    //   duration: Duration(
-                    //     milliseconds: (100 * daysDiff).clamp(300, 600),
-                    //   ),
-                    //   curve: Curves.linear,
-                    // );
 
                     dayController.jumpToPage(newDayPage);
 
                     controller.selectDate(value);
+                    onDateChanged?.call(value);
                   },
                 ),
               ),
@@ -176,8 +172,32 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
           Expanded(
             child: PageView.builder(
               onPageChanged: (value) {
+                final newDate = firstDay.add(Duration(days: value));
+
                 dayPage.value = value;
-                controller.selectDate(firstDay.add(Duration(days: value)));
+
+                final currentWeekIndex = weekPage.value;
+                final currentWeekNumber = weeks[currentWeekIndex].$1
+                    .getWeekNumber();
+                final newWeekNumber = newDate.getWeekNumber();
+
+                if (newWeekNumber > currentWeekNumber) {
+                  weekController.nextPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.linear,
+                  );
+                }
+
+                if (newWeekNumber < currentWeekNumber) {
+                  weekController.previousPage(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.linear,
+                  );
+                }
+
+                controller.selectDate(newDate);
+
+                onDateChanged?.call(newDate);
               },
               controller: dayController,
               itemCount: totalDays,

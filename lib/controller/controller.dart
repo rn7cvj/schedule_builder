@@ -1,5 +1,4 @@
 import 'package:datetime_utils/extensions/date_time.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -24,7 +23,7 @@ class ScheduleController<T extends Identifiable, E>
 
   final int pastDaysForCache;
   final int futureDaysForCache;
-
+k
   ScheduleController({
     required this.dataLoader,
     this.extraLoader,
@@ -110,7 +109,13 @@ class ScheduleController<T extends Identifiable, E>
     }
   }
 
-  Future<bool> updateValue(int id, T newValue) async {
+  Future<bool> updateValue(
+    int id, {
+    T? newValue,
+    T Function(T prevValue)? updater,
+  }) async {
+    assert(newValue != null || updater != null);
+
     final updatedData = Map<DateTime, DateState<T, E>>.from(state.data);
 
     bool itemFound = false;
@@ -130,8 +135,16 @@ class ScheduleController<T extends Identifiable, E>
         continue;
       }
 
+      final prevItem = loadedState.data[itemIndex];
+
+      final newItem = newValue ?? updater?.call(prevItem);
+
+      if (newItem == null) {
+        break;
+      }
+
       final updatedItems = List<T>.from(loadedState.data);
-      updatedItems[itemIndex] = newValue;
+      updatedItems[itemIndex] = newItem;
 
       updatedData[entry.key] = DateState<T, E>.loaded(
         data: updatedItems,
