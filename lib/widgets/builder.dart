@@ -13,6 +13,7 @@ part 'default/error_builder.dart';
 
 part 'default/week_builder.dart';
 part 'default/week_page_builder.dart';
+part 'default/header_builder.dart';
 
 part 'default/filter.dart';
 
@@ -42,6 +43,9 @@ typedef LoadedBuilder<T extends Identifiable, E> =
       E? extra,
     );
 
+typedef HeaderBuilder<T extends Identifiable, E> =
+    Widget Function(BuildContext context);
+
 typedef LoadingBuilder =
     Widget Function(BuildContext context, DateTime date, DateTime selectedDate);
 
@@ -65,6 +69,7 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
   final double weekHeight;
   final WeekBuilder weekBuilder;
   final WeekPagesBuilder weekPagesBuilder;
+  final HeaderBuilder headerBuilder;
 
   final LoadedBuilder<T, E> loadedBuilder;
 
@@ -83,6 +88,7 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
     this.weekHeight = 64.0,
     this.weekBuilder = _defaultWeekBuilder,
     this.weekPagesBuilder = _defaultWeekPageBuilder,
+    this.headerBuilder = _defaultHeaderBuilder,
     this.loadedBuilder = _defaultLoadedBuilder,
     this.loadingBuilder = _defaultLoadingBuilder,
     this.errorBuilder = _defaultErrorBuilder,
@@ -169,6 +175,7 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
                     },
             ),
           ),
+          headerBuilder(context),
           Expanded(
             child: PageView.builder(
               onPageChanged: (value) {
