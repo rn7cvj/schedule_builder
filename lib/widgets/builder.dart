@@ -121,9 +121,11 @@ class ScheduleBuilder<T extends Identifiable, E> extends HookWidget {
     final weekPage = useState(pastWeeksView);
     final weekController = usePageController(initialPage: pastWeeksView);
 
-    final dayPage = useState(pastWeeksView * 7 + DateTime.now().weekday - 1);
+    final anchorDate = controller.state.selectedDate;
+
+    final dayPage = useState(pastWeeksView * 7 + anchorDate.weekday - 1);
     final dayController = usePageController(
-      initialPage: pastWeeksView * 7 + DateTime.now().weekday - 1,
+      initialPage: pastWeeksView * 7 + anchorDate.weekday - 1,
     );
 
     return BlocBuilder<ScheduleController<T, E>, ScheduleControllerState<T, E>>(
