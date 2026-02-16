@@ -4,11 +4,10 @@ version: 1.0.0
 homepage: https://github.com/rn7cvj/schedule_builder
 
 environment:
-  sdk: '>=3.8.0 <4.0.0'
+  sdk: ">=3.8.0 <4.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
-  
   flutter:
     sdk: flutter
 
@@ -17,21 +16,22 @@ dependencies:
   flutter_hooks: ^0.21.3
 
   # Model serialization
-  freezed_annotation: ^3.1.0 
+  freezed_annotation: ^3.1.0
 
   # Localizations
   intl: ^0.20.2
 
-  # Date 
-  datetime_utils: ^1.0.0
+  # Date
+  datetime_utils:
+    git:
+      url: https://github.com/rn7cvj/datetime_utils.git
+      ref: main
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   build_runner: ^2.6.0
-  freezed: ^3.2.0 
+  freezed: ^3.2.0
 
   flutter_lints: ^5.0.0
-
-
