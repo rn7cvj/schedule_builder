@@ -22,10 +22,7 @@ dependencies:
   intl: ^0.20.2
 
   # Date
-  datetime_utils:
-    git:
-      url: https://github.com/rn7cvj/datetime_utils.git
-      ref: main
+  datetime_utils: ^1.0.1
 
 dev_dependencies:
   flutter_test:
